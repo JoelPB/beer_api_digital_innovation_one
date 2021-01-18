@@ -69,8 +69,6 @@ public class BeerServiceTest {
 
         assertThat(createdBeerDTO.getQuantity(), is(greaterThan(2)));
 
-//        assertEquals(expectedBeerDTO.getId(), createdBeerDTO.getId());
-//        assertEquals(expectedBeerDTO.getName(), createdBeerDTO.getName());
 
     }
 
@@ -87,7 +85,52 @@ public class BeerServiceTest {
         assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
     }
 
-//
+    @Test
+    void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
+        // given
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        // when
+        when(beerRepository.findByName(expectedFoundBeer.getName())).thenReturn(Optional.of(expectedFoundBeer));
+
+        // then
+        BeerDTO foundBeerDTO = beerService.findByName(expectedFoundBeerDTO.getName());
+
+        assertThat(foundBeerDTO, is(equalTo(expectedFoundBeerDTO)));
+    }
+
+    @Test
+    void whenNotRegisteredBeerNameIsGivenThenThrowAnException() {
+        // given
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        // when
+        when(beerRepository.findByName(expectedFoundBeerDTO.getName())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(BeerNotFoundException.class, () -> beerService.findByName(expectedFoundBeerDTO.getName()));
+
+    }
+
+    @Test
+    void whenLisBeerIsCalledThenReturnAlistOfBeers() {
+        // given
+        BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
+
+        // when
+        when(beerRepository.findAll()).thenReturn(Collections.singletonList(expectedFoundBeer));
+
+        // then
+        List<BeerDTO> foundListBeersDTO = beerService.listAll();
+
+        assertThat(foundListBeersDTO, is(not(empty())));
+        assertThat(foundListBeersDTO.get(0), is(equalTo(expectedFoundBeerDTO)));
+    }
+
+    //
 //    @Test
 //    void whenDecrementIsCalledThenDecrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
 //        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
